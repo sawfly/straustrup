@@ -16,8 +16,8 @@ int main() {
 
     walk1(kk, size);
     std::cout << '\n';
-//    walk2(kk, size);
-//    std::cout << '\n';
+    walk2(kk, size);
+    std::cout << '\n';
     printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
     return 0;
 }
