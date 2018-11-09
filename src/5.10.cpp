@@ -1,6 +1,4 @@
 #include <iostream>
-#include <string>
-#include <typeinfo>
 
 void print2(std::string months[]);
 
