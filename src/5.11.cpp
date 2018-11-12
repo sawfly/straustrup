@@ -4,7 +4,7 @@
 #include <string>
 
 void print(std::string words[], unsigned short size);
-bool inArray(std::string words[], unsigned short size, std::string valueToFind);
+bool inArray(std::string words[], unsigned short size, const std::string &valueToFind);
 
 int main() {
     const short SIZE = 100;
@@ -53,7 +53,7 @@ void print(std::string words[], unsigned short size) {
     }
 }
 
-bool inArray(std::string words[], unsigned short size, std::string valueToFind) {
+bool inArray(std::string words[], unsigned short size, const std::string &valueToFind) {
     for (int i = 0; i < size; i++) {
         if (words[i] == valueToFind) {
             return true;
