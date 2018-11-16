@@ -3,7 +3,7 @@ project(straustrup)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(wr src/wr.cpp src/sawfly/time-converter/TimeConverter.cpp)
+add_executable(wr src/wr.cpp src/sawfly/time-converter/TimeConverter.cpp src/sawfly/date-time/DateTime.cpp src/sawfly/date-time/DateTime.h)
 add_executable(straustrup_4_1 src/4.1.cpp)
 add_executable(straustrup_4_2 src/4.2.cpp src/4_2_extern.cpp)
 add_executable(straustrup_4_3 src/4.3.cpp)

@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "sawfly/time-converter/TimeConverter.h"
+#include "sawfly/date-time/DateTime.h"
 
 
 int main() {
@@ -21,6 +22,10 @@ int main() {
     std::cout << tc.getNormalizedPeriod();
     std::cout << std::endl;
     std::cout << leftTime;
+
+    DateTime dateTime;
+    std::string f = "Y";
+    dateTime.now().format(f);
 
     return 0;
 }
