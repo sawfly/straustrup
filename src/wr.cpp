@@ -4,6 +4,7 @@
 
 #include "sawfly/time-converter/TimeConverter.h"
 #include "sawfly/date-time/DateTime.h"
+#include "sawfly/utils/Utils.h"
 
 
 int main() {
@@ -24,9 +25,10 @@ int main() {
     std::cout << leftTime;
 
     DateTime dateTime;
-    std::string f = "y---Y";
+    std::string f = "Y--p";
     std::cout << dateTime.now().format(f) << "THE END!\n";
 
+    std::cout << Utils::stringFill("string", '_', 19, false);
     return 0;
     std::string ss = "rstring to parsei_";
     std::string *sss = &ss;

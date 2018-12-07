@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 project(straustrup)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(wr src/wr.cpp src/sawfly/time-converter/TimeConverter.cpp src/sawfly/date-time/DateTime.cpp src/sawfly/date-time/DateTime.h src/sawfly/date-time/Format.cpp src/sawfly/date-time/Format.h)
+add_executable(wr src/wr.cpp src/sawfly/time-converter/TimeConverter.cpp src/sawfly/date-time/DateTime.cpp src/sawfly/date-time/DateTime.h src/sawfly/date-time/Format.cpp src/sawfly/date-time/Format.h src/sawfly/utils/Utils.cpp src/sawfly/utils/Utils.h)
 add_executable(straustrup_4_1 src/4.1.cpp)
 add_executable(straustrup_4_2 src/4.2.cpp src/4_2_extern.cpp)
 add_executable(straustrup_4_3 src/4.3.cpp)

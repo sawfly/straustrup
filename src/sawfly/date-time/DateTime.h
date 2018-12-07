@@ -14,58 +14,87 @@ typedef unsigned short us;
 typedef unsigned long ul;
 
 /**
- * Formats
- *  Y/y
- *  M/m
- *  D/d
- *  H/h
- *  Mi/mi
- *  S/s
- *  AP
+ * Formats:
+ *  - Years:
+ *    Y => 2018
+ *    y => 18
+ *  - Months:
+ *    M => 06
+ *    m => 6
+ *  - Days:
+ *    D => 07
+ *    d => 7
+ *  - Hours:
+ *    H => 08; 20
+ *    C => 8; 20
+ *    h => 08
+ *    c => 8
+ *  - Minutes:
+ *    N => 08
+ *    n => 8
+ *  - Seconds:
+ *    S => 08
+ *    s => 8
+ *  - After/Before Noon:
+ *    p => AM||PM
  */
 class DateTime {
 public:
+    /**
+     * Constructor
+     */
     DateTime();
 
+    /**
+     *
+     * @return
+     */
     DateTime now();
 
+    /**
+     * Gets format string and returns time as string according to format
+     * std::string @return
+     */
     std::string format(std::string &);
 
-    ul getYear(std::string format = "Y");
-
-    us getMonth(std::string format = "M");
-
-    ul getDay(std::string format = "D");
-
-    ul getHours(std::string format = "H");
-
-    ul getMinutes(std::string format = "N");
-
-    ul getSeconds(std::string format = "S");
-
-    std::map<std::string, std::string> getFormats(std::string type);
-
-
 private:
-    ul year;
-    us month;
-    us day;
-    us hours;
-    us minutes;
-    us seconds;
+    /**
+     * Constants for binding formats
+     */
+    static const std::string TYPE_YEAR;
+    static const std::string TYPE_MONTH;
+    static const std::string TYPE_DAY;
+    static const std::string TYPE_HOUR;
+    static const std::string TYPE_MINUTE;
+    static const std::string TYPE_SECOND;
+    static const std::string TYPE_MERIDIEM;
+
+    /**
+     * Conjunction to get normal year
+     */
+    const int ADD_TO_YEAR = 1900;
+
+    /**
+     * struct tm
+     */
     std::tm cTime;
-    std::map<std::string, std::string> mapOfFormatPatterns;
-    std::map<std::string, std::string> mapOfYearFormatsPatterns;
-    std::map<std::string, std::string> mapOfMonthFormatsPatterns;
-    std::map<std::string, std::string> mapOfDayFormatsPatterns;
-    std::map<std::string, std::string> mapOfDaysFormatsPatterns;
+
+    /**
+     * keeps Format objects
+     */
     std::map<std::string, Format *> formats;
+
     std::map<std::string, std::string> mapFormats;
     std::vector<std::string> formatNames;
     std::vector<std::string> parsedFormats;
     std::map<std::string, std::string (DateTime::*)()> mapOfFormattingMethods;
 
-    void parseFormat(std::string &format);
+    /**
+     * Calls methods according to type
+     * @param type
+     * @return
+     */
+    std::map<std::string, std::string> getFormats(std::string type);
 
     std::map<std::string, std::string> getYearFormats();
 
@@ -79,20 +108,48 @@ private:
 
     std::map<std::string, std::string> getSecondFormats();
 
-    void composeFormats();
+    std::map<std::string, std::string> getPartOfDayFormats();
 
     void bindFormatsMethods();
 
+    void composeFormats();
+
+    /**
+     * parses format string
+     * @param format
+     */
+    void parseFormat(std::string &format);
+
     std::string getFullYears();
+
     std::string getShortYears();
 
-    static const std::string TYPE_YEAR;
-    static const std::string TYPE_MONTH;
-    static const std::string TYPE_DAY;
-    static const std::string TYPE_HOUR;
-    static const std::string TYPE_MINUTE;
-    static const std::string TYPE_SECOND;
-    const int ADD_TO_YEAR = 1900;
+    std::string getZerofillMonth();
+
+    std::string getZerofreeMonth();
+
+    std::string getZerofillDay();
+
+    std::string getZerofreeDay();
+
+    std::string getZerofree24Hours();
+
+    std::string getZerofill24Hours();
+
+    std::string getZerofree12Hours();
+
+    std::string getZerofill12Hours();
+
+    std::string getZerofreeMinutes();
+
+    std::string getZerofillMinutes();
+
+    std::string getZerofreeSeconds();
+
+    std::string getZerofillSeconds();
+
+    std::string getAmPm();
+
 
 };
 

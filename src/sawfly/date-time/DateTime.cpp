@@ -3,8 +3,7 @@
 //
 
 #include "DateTime.h"
-
-typedef std::string (DateTime::*FredMemFn)();  // Please do this!
+#include "../utils/Utils.h"
 
 DateTime DateTime::now() {
     std::time_t t = time(nullptr);
@@ -14,121 +13,64 @@ DateTime DateTime::now() {
 }
 
 std::string DateTime::format(std::string &format) {
-//    std::map<std::string, std::regex> mapOfPatterns;
     std::string f = format;
-//    std::cout << this->mapOfFormatPatterns["fullYear"];
-//    for(auto i : this->mapOfFormatPatterns){
-//        std::cout << this->mapOfFormatPatterns[i];
-//    }
-
-
-    auto it = this->mapOfFormatPatterns.begin();
-    while (it != this->mapOfFormatPatterns.end()) {
-//        std::cout << std::regex_replace(f.begin(), f.end()) << "\n";
-        std::cout << it->first << ":\t" << it->second << "\n";
-        it++;
-    }
-//    std::map<std::string, int>::iterator it = mapOfWords.begin();
-//    while(it != mapOfWords.end())
-//    {
-//        std::cout<<it->first<<" :: "<<it->second<<std::endl;
-//        it++;
-//    }
-
     this->parseFormat(format);
     std::string parsedFormat = "";
     auto parsedFormatsIterator = this->parsedFormats.begin();
+
     while (parsedFormatsIterator != this->parsedFormats.end()) {
-        std::cout << *parsedFormatsIterator << "\n";
         auto isFounded = this->mapOfFormattingMethods.find(*parsedFormatsIterator);
+
         if (isFounded != this->mapOfFormattingMethods.end()) {
             parsedFormat.append((this->*this->mapOfFormattingMethods[*parsedFormatsIterator])());
-            std::cout << "!!!!" << (this->*this->mapOfFormattingMethods[*parsedFormatsIterator])() << "\n";
         } else {
             parsedFormat.append(*parsedFormatsIterator);
         }
+
         parsedFormatsIterator++;
     }
-//    std::cout << "MF";
-//    FredMemFn r = this->mapOfFormattingMethods["getFullYears"];
-////    std::cout << r->*();
-//    DateTime t;
-//    std::cout << (this->*r)() << "\n";
-//    std::cout << (this->*this->mapOfFormattingMethods["getFullYears"])() << "\n";
     return parsedFormat;
 }
 
 void DateTime::parseFormat(std::string &format) {
     std::vector<std::string> formatComponents;
     std::string outOfMaps;
+    ul start = 0, len = 1;
+
     if (this->mapFormats.empty()) {
         this->composeFormats();
     }
 
-    unsigned long int start = 0, len = 1;
     for (int i = 0; i < format.length(); ++i) {
-        std::string character = format.substr(static_cast<unsigned long>(i), 1);
+        std::string character = format.substr(static_cast<ul>(i), 1);
         auto res = this->mapFormats.find(character);
+
         if (res != this->mapFormats.end()) {
             outOfMaps = format.substr(start, len);
+
             if (!outOfMaps.empty() && i > 0) {
                 formatComponents.push_back(outOfMaps);
             }
+
             formatComponents.push_back(res->second);
-            start = static_cast<unsigned long>(i + 1);
+            start = static_cast<ul>(i + 1);
             len = 0;
             continue;
         }
-        len++;
 
-//        ssv.push_back(ss.substr(start, len));
-        std::cout << character << "\n";
+        len++;
     }
-//    formatComponents
+
     outOfMaps = format.substr(start, len);
 
     if (!outOfMaps.empty()) {
         formatComponents.push_back(outOfMaps);
     }
 
-    for (auto i = 0; i < formatComponents.size(); i++) {
-        std::cout << "--->" << formatComponents[i] << "\n";
-    }
-
     this->parsedFormats = formatComponents;
-
-
-//    std::cout << "end!!!!!!!!!!!!!!!\n";
-//    if (format == "Y") {
-//        std::cout << "YEAR!!!\n";
-//        std::cout << this->cTime.tm_year << "YEAR!!!\n";
-////        std::cout << &this->formats["year"]->getSelectedFormat()->begin()->first;
-//        Format yFormat  = *this->formats["year"];
-//        std::map<std::string, std::string> selectedFormat = yFormat.getSelectedFormat();
-//        auto iterator = *selectedFormat.begin();
-////        iterator = *selectedFormat->begin();
-//        std::cout << iterator.second;
-//    }
-//    std::cout << format;
 }
 
 DateTime::DateTime() {
-    this->mapOfFormatPatterns = {
-            {"fullYear",           "Y"},
-            {"shortYear",          "y"},
-            {"fullMonth",          "M"},
-            {"shortMonth",         "m"},
-            {"fullDay",            "D"},
-            {"shortDay",           "d"},
-            {"hours24",            "H"},
-            {"hours24LeadingZero", "0H"},
-            {"hours12",            "h"},
-            {"hours12LeadingZero", "0h"},
-            {"minutes",            "N"},
-            {"minutesLeadingZero", "n"},
-            {"seconds",            "S"},
-            {"secondsLeadingZero", "s"},
-    };
     this->formatNames = {
             DateTime::TYPE_YEAR,
             DateTime::TYPE_MONTH,
@@ -136,11 +78,14 @@ DateTime::DateTime() {
             DateTime::TYPE_HOUR,
             DateTime::TYPE_MINUTE,
             DateTime::TYPE_SECOND,
+            DateTime::TYPE_MERIDIEM,
     };
 
     auto iteratorFormatNames = this->formatNames.begin();
+
     while (iteratorFormatNames != this->formatNames.end()) {
         auto *format = new Format();
+
         try {
             std::map<std::string, std::string> formatsMap = this->getFormats(*iteratorFormatNames);
             format->setFormats(formatsMap);
@@ -148,16 +93,13 @@ DateTime::DateTime() {
         } catch (const std::invalid_argument &e) {
             std::cout << e.what() << '\n';
         }
+
         iteratorFormatNames++;
     }
 
     this->bindFormatsMethods();
 
     this->now();
-}
-
-ul DateTime::getYear(std::string format) {
-    return 0;
 }
 
 std::map<std::string, std::string> DateTime::getFormats(std::string type) {
@@ -173,7 +115,10 @@ std::map<std::string, std::string> DateTime::getFormats(std::string type) {
         return this->getMinuteFormats();
     } else if (type == DateTime::TYPE_SECOND) {
         return this->getSecondFormats();
+    } else if (type == DateTime::TYPE_MERIDIEM) {
+        return this->getPartOfDayFormats();
     }
+
     throw std::invalid_argument("unsupported format type.");
 }
 
@@ -203,9 +148,9 @@ std::map<std::string, std::string> DateTime::getDayFormats() {
 
 std::map<std::string, std::string> DateTime::getHourFormats() {
     std::map<std::string, std::string> formats;
-    formats["С"] = "getZerofree24Hours";
+    formats["C"] = "getZerofree24Hours";
     formats["H"] = "getZerofill24Hours";
-    formats["с"] = "getZerofree12Hours";
+    formats["c"] = "getZerofree12Hours";
     formats["h"] = "getZerofill12Hours";
 
     return formats;
@@ -227,45 +172,67 @@ std::map<std::string, std::string> DateTime::getSecondFormats() {
     return formats;
 }
 
+std::map<std::string, std::string> DateTime::getPartOfDayFormats() {
+    std::map<std::string, std::string> formats;
+    formats["p"] = "getAmPm";
+
+    return formats;
+}
+
 const std::string DateTime::TYPE_YEAR = "year";
 const std::string DateTime::TYPE_MONTH = "month";
 const std::string DateTime::TYPE_DAY = "day";
 const std::string DateTime::TYPE_HOUR = "hour";
 const std::string DateTime::TYPE_MINUTE = "minute";
 const std::string DateTime::TYPE_SECOND = "second";
-
-//const int DateTime::ADD_TO_YEAR = 1900;
+const std::string DateTime::TYPE_MERIDIEM = "meridiem";
 
 void DateTime::composeFormats() {
     auto formatsIterator = this->formats.begin();
     std::map<std::string, std::string> formats;
+
     while (formatsIterator != this->formats.end()) {
-        std::cout << formatsIterator->first << "\n";
         auto formatsFromFormat = formatsIterator->second->getFormats();
         auto localFormatIterator = formatsFromFormat->begin();
+
         while (localFormatIterator != formatsFromFormat->end()) {
             this->mapFormats[localFormatIterator->first] = localFormatIterator->second;
             localFormatIterator++;
         }
+
         formatsIterator++;
     }
+}
+
+void DateTime::bindFormatsMethods() {
+    this->mapOfFormattingMethods["getFullYears"] = &DateTime::getFullYears;
+    this->mapOfFormattingMethods["getShortYears"] = &DateTime::getShortYears;
+    this->mapOfFormattingMethods["getZerofreeMonth"] = &DateTime::getZerofreeMonth;
+    this->mapOfFormattingMethods["getZerofillMonth"] = &DateTime::getZerofillMonth;
+    this->mapOfFormattingMethods["getZerofreeDay"] = &DateTime::getZerofreeDay;
+    this->mapOfFormattingMethods["getZerofillDay"] = &DateTime::getZerofillDay;
+    this->mapOfFormattingMethods["getZerofree24Hours"] = &DateTime::getZerofree24Hours;
+    this->mapOfFormattingMethods["getZerofill24Hours"] = &DateTime::getZerofill24Hours;
+    this->mapOfFormattingMethods["getZerofree12Hours"] = &DateTime::getZerofree12Hours;
+    this->mapOfFormattingMethods["getZerofill12Hours"] = &DateTime::getZerofill12Hours;
+    this->mapOfFormattingMethods["getZerofreeMinutes"] = &DateTime::getZerofreeMinutes;
+    this->mapOfFormattingMethods["getZerofillMinutes"] = &DateTime::getZerofillMinutes;
+    this->mapOfFormattingMethods["getZerofreeSeconds"] = &DateTime::getZerofreeSeconds;
+    this->mapOfFormattingMethods["getZerofillSeconds"] = &DateTime::getZerofillSeconds;
+    this->mapOfFormattingMethods["getAmPm"] = &DateTime::getAmPm;
 }
 
 std::string DateTime::getFullYears() {
     return std::to_string(this->cTime.tm_year + this->ADD_TO_YEAR);
 }
 
-void DateTime::bindFormatsMethods() {
-    this->mapOfFormattingMethods["getFullYears"] = &DateTime::getFullYears;
-    this->mapOfFormattingMethods["getShortYears"] = &DateTime::getShortYears;
-}
-
 std::string DateTime::getShortYears() {
     std::string fullYear = this->getFullYears();
     us fullYearLength = static_cast<us>(fullYear.length());
+
     switch (fullYearLength) {
         case 1:
-            return "0" + fullYear;
+            return Utils::stringFill(fullYear, '0', 2);
         case 2:
             return fullYear;
         case 3:
@@ -275,7 +242,58 @@ std::string DateTime::getShortYears() {
     }
 }
 
-//std::map<std::string, std::regex> mapOfFormatPatterns = {
-//        {"Yyyy",  "Y"}, {"yy", "y"},
-//        {"mo",  "M"}, {"yy", "y"},
-//};
+std::string DateTime::getZerofreeMonth() {
+    return std::to_string(this->cTime.tm_mon + 1);
+}
+
+std::string DateTime::getZerofillMonth() {
+    return Utils::stringFill(this->getZerofreeMonth(), '0', 2);
+}
+
+std::string DateTime::getZerofreeDay() {
+    return std::to_string(this->cTime.tm_mday);
+}
+
+std::string DateTime::getZerofillDay() {
+    return Utils::stringFill(this->getZerofreeDay(), '0', 2);
+}
+
+std::string DateTime::getZerofree24Hours() {
+    return std::to_string(this->cTime.tm_hour);
+}
+
+std::string DateTime::getZerofill24Hours() {
+    return Utils::stringFill(this->getZerofree24Hours(), '0', 2);
+}
+
+std::string DateTime::getZerofree12Hours() {
+    return std::to_string(this->cTime.tm_hour > 12 ? 24 - std::stoi(this->getZerofree24Hours()): std::stoi(this->getZerofree24Hours()));
+}
+
+std::string DateTime::getZerofill12Hours() {
+    return Utils::stringFill(this->getZerofree12Hours(), '0', 2);
+}
+
+std::string DateTime::getZerofreeMinutes() {
+    return std::to_string(this->cTime.tm_min);
+}
+
+std::string DateTime::getZerofillMinutes() {
+    return Utils::stringFill(this->getZerofreeMinutes(), '0', 2);
+}
+
+std::string DateTime::getZerofreeSeconds() {
+    return std::to_string(this->cTime.tm_sec < 60 ? this->cTime.tm_sec : 0);
+}
+
+std::string DateTime::getZerofillSeconds() {
+    return Utils::stringFill(this->getZerofreeSeconds(), '0', 2);
+}
+
+std::string DateTime::getAmPm() {
+    if(this->cTime.tm_hour >= 0 && this->cTime.tm_hour < 12){
+        return "AM";
+    }
+
+    return "PM";
+}
